@@ -140,13 +140,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  PostData(String deviceId) async {
+  Future<void> PostData(String deviceId) async {
     try {
+      // su http.post( SITO DOVE POSTIAMO I DATI, DATI)
       var risposta = await http.post(Uri.parse(_localhost()),
           body: {
-            "id": deviceId,
+            "id": deviceId, // id univoco del device
+            "orario": DateTime.now().toString(), // orario del device
           });
-      print(risposta.body);
+
+      if (risposta.statusCode == 201) {
+        final String stringRisposta = risposta.body;
+        print(stringRisposta);
+      }
     }catch(e){
       print(e);
     }
