@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:device_info/device_info.dart'; // pack per ricavare identificativo
+import 'package:http/http.dart' as http;
 
-// import 'package:qr_utils/qr_utils.dart';
-// import 'package:flutter_qr_bar_scanner/qr_bar_scanner_camera.dart';
+
 import 'package:barcode_scan/barcode_scan.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,6 +18,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _content = '';
+  String _qrCode ='HEypyyVo4DnoUnQIRdjPfJcNvbb7KzhcgZTE37lx5GJGAt1LUP8soVaFZDPDdQMIBFsfPSaULQnJys0v8hOKNUX6dAYc3MmkgkZLpjDWWkhmYpGZgF2Fsv3VdvrE2g';
+  String serverResponse = "";
+  String result = "";
+  String deviceId = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -90,12 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             InkWell(
               // Qui avviene la chiamata al metodo _openQRScanner()
-              onTap: () => _openQRScanner(),
+              onTap: () => ConfrontaQr(),
               child: new Center(
                 child: Container(
                   margin: EdgeInsets.only(top: 30.0),
-                  width: 180.0,
-                  height: 48.0,
+                  width: 300.0,
+                  height: 150.0,
                   decoration: new BoxDecoration(
                     shape: BoxShape.rectangle,
                     color: Colors.white,
@@ -108,7 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       'SCAN',
                       style: TextStyle(
                         color: Colors.lightBlue,
-//                    /fontWeight: FontWeight.bold
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -121,22 +129,79 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future _openQRScanner() async {
-    String result;
+  void ConfrontaQr() async{
+    _openQRScanner();
+    if (result == _qrCode) {
+      // confrontiamo il Qr
+      //_makeGetRequest();
+      //print(serverResponse);
+      String deviceId = await _getId();
+      PostData(deviceId);
+    }
+  }
+
+  PostData(String deviceId) async {
     try {
-      result = (await BarcodeScanner.scan()) as String;
-    } on PlatformException catch (e) {
-      result = "";
-      showSnackBar('Can\'t find the camera!');
-    } catch (e) {
-      result = "";
-      showSnackBar('Can\'t find the camera!');
+      var risposta = await http.post(Uri.parse(_localhost()),
+          body: {
+            "id": deviceId,
+          });
+      print(risposta.body);
+    }catch(e){
       print(e);
     }
+  }
+
+
+
+
+
+  Future _openQRScanner() async {
+    try {
+      ScanResult qrScanResult = await BarcodeScanner.scan();
+      String qrResult = qrScanResult.rawContent;
+      setState(() {
+        result = qrResult;
+      });
+    } on PlatformException catch (ex) {
+      if (ex.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          result = "Camera was denied";
+        });
+      } else {
+        setState(() {
+          result = "Unknown Error $ex";
+        });
+      }
+    } on FormatException {
+      setState(() {
+        result = "You pressed the back button before scanning anything";
+      });
+    } catch (ex) {
+      setState(() {
+        result = "Unknown Error $ex";
+      });
+    }
+
+
+  }
+
+
+  _makeGetRequest() async {
+    final url = Uri.parse(_localhost());
+    http.Response response = await http.get(url);
     setState(() {
-      this._content = result;
+      serverResponse = response.body;
     });
   }
+
+  String _localhost() {
+    if (Platform.isAndroid)
+      return 'http://10.0.2.2:3000';
+    else // for iOS simulator
+      return 'http://localhost:3000';
+  }
+
 
   void showSnackBar(String message) {
     final snackBar = SnackBar(
@@ -149,4 +214,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _scaffoldKey.currentState!.showSnackBar(snackBar);
   }
+
+
+  Future<String> _getId() async {
+    var deviceInfo = DeviceInfoPlugin();
+    if (Platform.isIOS) { // import 'dart:io'
+      var iosDeviceInfo = await deviceInfo.iosInfo;
+      return iosDeviceInfo.identifierForVendor; // unique ID on iOS
+    } else {
+      var androidDeviceInfo = await deviceInfo.androidInfo;
+      return androidDeviceInfo.androidId; // unique ID on Android
+    }
+  }
+
+
 }

@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:qr_code2/constant/Constant.dart';
 import 'package:qr_code2/screen/HomeScreen.dart';
