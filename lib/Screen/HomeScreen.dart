@@ -18,9 +18,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _content = '';
-  String _qrCode ='HEypyyVo4DnoUnQIRdjPfJcNvbb7KzhcgZTE37lx5GJGAt1LUP8soVaFZDPDdQMIBFsfPSaULQnJys0v8hOKNUX6dAYc3MmkgkZLpjDWWkhmYpGZgF2Fsv3VdvrE2g';
+  //String _qrCode ='HEypyyVo4DnoUnQIRdjPfJcNvbb7KzhcgZTE37lx5GJGAt1LUP8soVaFZDPDdQMIBFsfPSaULQnJys0v8hOKNUX6dAYc3MmkgkZLpjDWWkhmYpGZgF2Fsv3VdvrE2g';
   String serverResponse = "";
-  String result = "";
+  String qrInfo = "";
   String deviceId = "";
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             InkWell(
               // Qui avviene la chiamata al metodo _openQRScanner()
-              onTap: () => ConfrontaQr(),
+              onTap: () => LetturaQr(),
               child: new Center(
                 child: Container(
                   margin: EdgeInsets.only(top: 30.0),
@@ -129,15 +129,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void ConfrontaQr() async{
+  void LetturaQr() async{
     _openQRScanner();
-    if (result == _qrCode) {
+    //if (result == _qrCode) {
       // confrontiamo il Qr
       //_makeGetRequest();
       //print(serverResponse);
       String deviceId = await _getId();
       PostData(deviceId);
-    }
+    //}
   }
 
   Future<void> PostData(String deviceId) async {
@@ -147,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
           body: {
             "id": deviceId, // id univoco del device
             "orario": DateTime.now().toString(), // orario del device
+            "qrInfo": qrInfo,
           });
 
       if (risposta.statusCode == 201) {
@@ -167,25 +168,25 @@ class _HomeScreenState extends State<HomeScreen> {
       ScanResult qrScanResult = await BarcodeScanner.scan();
       String qrResult = qrScanResult.rawContent;
       setState(() {
-        result = qrResult;
+        qrInfo = qrResult;
       });
     } on PlatformException catch (ex) {
       if (ex.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
-          result = "Camera was denied";
+          qrInfo = "Camera was denied";
         });
       } else {
         setState(() {
-          result = "Unknown Error $ex";
+          qrInfo = "Unknown Error $ex";
         });
       }
     } on FormatException {
       setState(() {
-        result = "You pressed the back button before scanning anything";
+        qrInfo = "You pressed the back button before scanning anything";
       });
     } catch (ex) {
       setState(() {
-        result = "Unknown Error $ex";
+        qrInfo = "Unknown Error $ex";
       });
     }
 
