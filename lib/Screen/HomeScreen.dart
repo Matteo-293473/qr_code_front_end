@@ -13,21 +13,31 @@ class HomeScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return _HomeScreenState();
+
   }
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _content = '';
-  //String _qrCode ='HEypyyVo4DnoUnQIRdjPfJcNvbb7KzhcgZTE37lx5GJGAt1LUP8soVaFZDPDdQMIBFsfPSaULQnJys0v8hOKNUX6dAYc3MmkgkZLpjDWWkhmYpGZgF2Fsv3VdvrE2g';
+
+
+
+  String _content = "";
   String serverResponse = "";
   String qrInfo = "";
   String deviceId = "";
+  bool connessione = false;
+
+
+
+
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   initState() {
     super.initState();
+    const dueSec = Duration(seconds:5);
+    Timer.periodic(dueSec, (Timer t) => checkConnessione());
   }
 
   @override
@@ -39,6 +49,31 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0.1, // Check Platform if android
         // backgroundColor: const Color(0xFFF6F8FA),
         title: new Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+          SizedBox(
+              width: 60,
+              child:
+              CircleAvatar(backgroundColor : connessione == true ? Colors.green : Colors.red)),
+            SizedBox(
+              width: 300,
+              child:
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
+                child: Text(
+                  'Server Status',
+                  style: TextStyle(
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.left,
+                ),
+              ),
+            )
+            ],
+          )
+
+          ),
             // child: new Text(
             //   'QR SCAN',
             //   style: TextStyle(
@@ -46,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             //   ),
             //   textAlign: TextAlign.center,
             // ),
-            ),
+            //),
       ),
       body: Container(
         color: Colors.lightBlue,
@@ -89,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    _content != null ? _content : '',
+                    _content,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -129,15 +164,39 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
+
+  void checkConnessione() async {
+    try {
+      final result = await http.head(Uri.parse(_localhost()));
+      if (result.statusCode == 200 || result.statusCode == 404) {
+        setState(() {
+          connessione = true;
+        });
+        //print(result.statusCode);
+      }else{
+        setState(() {
+          connessione = false;
+        });
+        //print(result.statusCode);
+      }
+    } on SocketException catch (e) {
+      setState(() {
+        connessione = false;
+      });
+    }
+  }
+
+
   void LetturaQr() async{
-    _openQRScanner();
-    //if (result == _qrCode) {
-      // confrontiamo il Qr
-      //_makeGetRequest();
-      //print(serverResponse);
+    if(connessione)
+    {
+      await _openQRScanner();
       String deviceId = await _getId();
-      PostData(deviceId);
-    //}
+      await PostData(deviceId);
+    }else{
+      print("scansione non possibile");
+    }
   }
 
   Future<void> PostData(String deviceId) async {
@@ -149,11 +208,11 @@ class _HomeScreenState extends State<HomeScreen> {
             "orario": DateTime.now().toString(), // orario del device
             "qrInfo": qrInfo,
           });
-
       if (risposta.statusCode == 201) {
-        final String stringRisposta = risposta.body;
-        print(stringRisposta);
+        _content = risposta.body;
+        print(_content);
       }
+
     }catch(e){
       print(e);
     }
@@ -173,20 +232,21 @@ class _HomeScreenState extends State<HomeScreen> {
     } on PlatformException catch (ex) {
       if (ex.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
-          qrInfo = "Camera was denied";
+          _content = "Camera was denied";
         });
       } else {
         setState(() {
-          qrInfo = "Unknown Error $ex";
+          _content = "Unknown Error $ex";
         });
       }
     } on FormatException {
       setState(() {
-        qrInfo = "You pressed the back button before scanning anything";
+        _content = "You pressed the back button before scanning anything";
+        print(_content);
       });
     } catch (ex) {
       setState(() {
-        qrInfo = "Unknown Error $ex";
+        _content = "Unknown Error $ex";
       });
     }
 
@@ -194,13 +254,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
-  _makeGetRequest() async {
-    final url = Uri.parse(_localhost());
-    http.Response response = await http.get(url);
-    setState(() {
-      serverResponse = response.body;
-    });
-  }
 
   String _localhost() {
     if (Platform.isAndroid)

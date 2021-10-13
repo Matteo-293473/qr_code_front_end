@@ -6,6 +6,7 @@ import 'package:qr_code2/constant/Constant.dart';
 class SplashScreen extends StatefulWidget {
   @override
   SplashScreenState createState() => new SplashScreenState();
+
 }
 
 class SplashScreenState extends State<SplashScreen>
@@ -25,6 +26,12 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   @override
+  dispose() {
+    animationController.dispose(); // you need this
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     animationController = new AnimationController(
@@ -35,6 +42,7 @@ class SplashScreenState extends State<SplashScreen>
         new CurvedAnimation(parent: animationController, curve: Curves.easeOut);
 
     animation.addListener(() => this.setState(() {}));
+    //animationController.dispose();
     animationController.forward();
 
     setState(() {
@@ -56,11 +64,6 @@ class SplashScreenState extends State<SplashScreen>
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(bottom: 30.0),
-                // child: new Image.asset(
-                //   'assets/images/logo.png',
-                //   height: 25.0,
-                //   fit: BoxFit.scaleDown,
-                // ),
               )
             ],
           ),
