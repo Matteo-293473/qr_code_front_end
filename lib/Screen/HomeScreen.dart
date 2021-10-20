@@ -185,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } on SocketException catch (e) {
       setState(() {
         connessione = false;
+        messaggio = "Connessione al server non riuscita ❌";
       });
     } on TimeoutException {
       throw HttpException("TIMEOUT");
@@ -209,46 +210,44 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> PostData(String deviceId) async {
-    try {
-      // su http.post( SITO DOVE POSTIAMO I DATI, DATI)
-      var risposta = await http.post(Uri.parse(_localhost()),
-          body: {
-            "id": deviceId, // id univoco del device
-            "orario": DateTime.now().toString(), // orario del device
-            "qrInfo": qrInfo, // valore del qr
-          });
-      print(risposta.body);
-      setState(() {
-        messaggio = "Registrato device, Prima scansione 1/2 ✔";
-      });
+    // su http.post( SITO DOVE POSTIAMO I DATI, DATI)
+    var risposta = await http.post(Uri.parse(_localhost()),
+        body: {
+          "id": deviceId, // id univoco del device
+          "orario": DateTime.now().toString(), // orario del device
+          "qrInfo": qrInfo, // contenuto del qr
+        });
+    print(risposta.body);
+    setState(() {
+      messaggio = risposta.body;
+    });
 
-
-      switch(risposta.body){
-        case "first device" :
-          setState(() {
-            messaggio = "Registrato device, Prima scansione 1/2 ✔";
-          });
-          break;
-        case "first" :
-          setState(() {
-            messaggio = "Prima scansione 1/2 ✔";
-          });
-          break;
-        case "second":
-          setState(() {
-            messaggio = "Seconda scansione 2/2 ✔";
-          });
-          break;
-        default:
-          throw new Exception("Bad server status ❌");
-      }
-    }on Exception catch (e){
-      print(e);
-      setState((){
-        messaggio = e.toString();
-      });
-    }
   }
+    //   switch(risposta.body){
+    //     case "first device" :
+    //       setState(() {
+    //         messaggio = "Registrato device, Prima scansione 1/2 ✔";
+    //       });
+    //       break;
+    //     case "first" :
+    //       setState(() {
+    //         messaggio = "Prima scansione 1/2 ✔";
+    //       });
+    //       break;
+    //     case "second":
+    //       setState(() {
+    //         messaggio = "Seconda scansione 2/2 ✔";
+    //       });
+    //       break;
+    //     default:
+    //       throw new Exception("Bad server status ❌");
+    //   }
+    // }on Exception catch (e){
+    //   print(e);
+    //   setState((){
+    //     messaggio = e.toString();
+    //   });
+    //}
 
 
 
