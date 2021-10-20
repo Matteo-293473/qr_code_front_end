@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String qrInfo = "";
   String deviceId = "";
   bool connessione = false;
+  String messaggio = "";
 
 
 
@@ -124,8 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    _content,
+                    messaggio,
                     style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -166,37 +168,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
-  void checkConnessione() async {
+  Future<void> checkConnessione() async {
     try {
       final result = await http.head(Uri.parse(_localhost()));
-      if (result.statusCode == 200 || result.statusCode == 404) {
+      print(result.statusCode);
+      if (result.statusCode == 200 ||result.statusCode == 404 ) {
         setState(() {
-          connessione = true;
+          connessione =  true;
         });
         //print(result.statusCode);
       }else{
         setState(() {
           connessione = false;
         });
-        //print(result.statusCode);
       }
     } on SocketException catch (e) {
       setState(() {
         connessione = false;
       });
+    } on TimeoutException {
+      throw HttpException("TIMEOUT");
+    }  catch (error) {
+      print(error);
     }
   }
 
 
   void LetturaQr() async{
-    if(connessione)
-    {
-      await _openQRScanner();
-      String deviceId = await _getId();
-      await PostData(deviceId);
-    }else{
-      print("scansione non possibile");
-    }
+      if(await connessione)
+      {
+        await _openQRScanner();
+        String deviceId = await _getId();
+        await PostData(deviceId);
+      }else {
+        setState((){
+          messaggio = "Bad server status ❌";
+        });
+      }
+
   }
 
   Future<void> PostData(String deviceId) async {
@@ -206,15 +215,38 @@ class _HomeScreenState extends State<HomeScreen> {
           body: {
             "id": deviceId, // id univoco del device
             "orario": DateTime.now().toString(), // orario del device
-            "qrInfo": qrInfo,
+            "qrInfo": qrInfo, // valore del qr
           });
-      if (risposta.statusCode == 201) {
-        _content = risposta.body;
-        print(_content);
-      }
+      print(risposta.body);
+      setState(() {
+        messaggio = "Registrato device, Prima scansione 1/2 ✔";
+      });
 
-    }catch(e){
+
+      switch(risposta.body){
+        case "first device" :
+          setState(() {
+            messaggio = "Registrato device, Prima scansione 1/2 ✔";
+          });
+          break;
+        case "first" :
+          setState(() {
+            messaggio = "Prima scansione 1/2 ✔";
+          });
+          break;
+        case "second":
+          setState(() {
+            messaggio = "Seconda scansione 2/2 ✔";
+          });
+          break;
+        default:
+          throw new Exception("Bad server status ❌");
+      }
+    }on Exception catch (e){
       print(e);
+      setState((){
+        messaggio = e.toString();
+      });
     }
   }
 
