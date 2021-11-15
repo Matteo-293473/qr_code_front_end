@@ -1,4 +1,4 @@
-# qr_code2
+# qr_code_front_end
 
 A new Flutter application.
 
