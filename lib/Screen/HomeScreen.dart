@@ -58,12 +58,12 @@ class _HomeScreenState extends State<HomeScreen> {
               child:
               CircleAvatar(backgroundColor : connessione == true ? Colors.green : Colors.red)),
             SizedBox(
-              width: 300,
+              width: 280,
               child:
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
                 child: Text(
-                  'Server Status',
+                  'Connessione',
                   style: TextStyle(
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold),
@@ -75,14 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
           )
 
           ),
-            // child: new Text(
-            //   'QR SCAN',
-            //   style: TextStyle(
-            //     color: Colors.black,
-            //   ),
-            //   textAlign: TextAlign.center,
-            // ),
-            //),
       ),
       body: Container(
         color: Colors.lightBlue,
@@ -170,23 +162,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> checkConnessione() async {
     try {
+
+
       final result = await http.head(Uri.parse(_localhost()));
+
+
       print(result.statusCode);
+
+
       if (result.statusCode == 200 ||result.statusCode == 404 ) {
         setState(() {
           connessione =  true;
         });
-        //print(result.statusCode);
-      }else{
-        setState(() {
-          connessione = false;
-        });
+
+
       }
     } on SocketException catch (e) {
+      print(e);
       setState(() {
-        connessione = false;
-        messaggio = "Connessione al server non riuscita ❌";
-      });
+          connessione = false;
+          messaggio = "Connessione al server non riuscita ❌";
+        });
     } on TimeoutException {
       throw HttpException("TIMEOUT");
     }  catch (error) {
@@ -198,12 +194,14 @@ class _HomeScreenState extends State<HomeScreen> {
   void LetturaQr() async{
       if(await connessione)
       {
+        // queste istruzioni devono avvenire in ordine e quindi
+        // usiamo il costrutto await
         await _openQRScanner();
         String deviceId = await _getId();
         await PostData(deviceId);
       }else {
         setState((){
-          messaggio = "Bad server status ❌";
+          messaggio = "Connessione al server non riuscita ❌";
         });
       }
 
@@ -214,8 +212,8 @@ class _HomeScreenState extends State<HomeScreen> {
     var risposta = await http.post(Uri.parse(_localhost()),
         body: {
           "id": deviceId, // id univoco del device
-          "orario": DateTime.now().toString(), // orario del device
           "qrInfo": qrInfo, // contenuto del qr
+          // orario del device viene inserito dal server
         });
     print(risposta.body);
     setState(() {
@@ -223,32 +221,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
   }
-    //   switch(risposta.body){
-    //     case "first device" :
-    //       setState(() {
-    //         messaggio = "Registrato device, Prima scansione 1/2 ✔";
-    //       });
-    //       break;
-    //     case "first" :
-    //       setState(() {
-    //         messaggio = "Prima scansione 1/2 ✔";
-    //       });
-    //       break;
-    //     case "second":
-    //       setState(() {
-    //         messaggio = "Seconda scansione 2/2 ✔";
-    //       });
-    //       break;
-    //     default:
-    //       throw new Exception("Bad server status ❌");
-    //   }
-    // }on Exception catch (e){
-    //   print(e);
-    //   setState((){
-    //     messaggio = e.toString();
-    //   });
-    //}
-
 
 
 
@@ -288,7 +260,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _localhost() {
     if (Platform.isAndroid)
-      return 'http://10.0.2.2:3000';
+      return 'http://192.168.0.108:80';
+      //return 'http://10.0.2.2:3000';
     else // for iOS simulator
       return 'http://localhost:3000';
   }
