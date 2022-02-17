@@ -38,6 +38,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: ^0.9.2
+
+flutter_icons:
+  android: true
+  image_path: "assets/icon/logo.png"
+
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -54,6 +61,8 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
+    - assets/icon/
+    - assets/icon/logo.png
     - assets/images/
     - assets/images/logo.png
     - assets/images/ic_scan.png

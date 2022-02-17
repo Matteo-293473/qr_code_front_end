@@ -260,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _localhost() {
     if (Platform.isAndroid)
-      return 'http://192.168.0.108:80';
+      return 'http://192.168.31.107:80';
       //return 'http://10.0.2.2:3000';
     else // for iOS simulator
       return 'http://localhost:3000';
