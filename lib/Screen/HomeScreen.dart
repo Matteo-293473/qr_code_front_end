@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:device_info/device_info.dart'; // pack per ricavare identificativo
 import 'package:http/http.dart' as http;
-
-
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:qr_code2/Screen/SetUp.dart';
+
+
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
 
-
+  String localHostString = "";
   String _content = "";
   String serverResponse = "";
   String qrInfo = "";
@@ -38,6 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
   initState() {
     super.initState();
     const dueSec = Duration(seconds:5);
+    if(localHostString == ""){
+      final localHost = Navigator.push(context,MaterialPageRoute(builder: (context) => SetUp()));
+      localHostString = localHost as String;
+    }
     Timer.periodic(dueSec, (Timer t) => checkConnessione());
   }
 
