@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_code2/Constant/Constant.dart';
 import 'Loading.dart';
 import 'package:http/http.dart' as http;
 
@@ -39,6 +40,7 @@ class _SetUpState extends State<SetUp> {
                         padding: EdgeInsets.all(20.0),
                         margin: EdgeInsets.all(10.0),
                         child: TextField(
+                          maxLength: 15,
                           style: TextStyle(color: Colors.white, fontSize: 30),
                           controller: _ipServer,
                           decoration: InputDecoration(
@@ -67,10 +69,10 @@ class _SetUpState extends State<SetUp> {
                         padding: EdgeInsets.all(20.0),
                         margin: EdgeInsets.all(10.0),
                         child: TextField(
+                          maxLength: 5,
                           style: TextStyle(color: Colors.white, fontSize: 30),
                           controller: _portServer,
                           decoration: InputDecoration(
-
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.white),
                               ),
@@ -138,7 +140,7 @@ class _SetUpState extends State<SetUp> {
           loading = false;
           // andiamo alla schermata successiva
           Future.delayed(Duration.zero, () {
-            Navigator.pop(context,localHost);
+            Navigator.of(context).pushReplacementNamed(HOME_SCREEN);
           });
 
           //Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()));

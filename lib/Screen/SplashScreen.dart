@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_code2/constant/Constant.dart';
+import 'package:qr_code2/Constant/Constant.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -22,12 +22,12 @@ class SplashScreenState extends State<SplashScreen>
   }
 
   void navigationPage() {
-    Navigator.of(context).pushReplacementNamed(HOME_SCREEN);
+    Navigator.of(context).pushReplacementNamed(SET_UP);
   }
 
   @override
   dispose() {
-    animationController.dispose(); // you need this
+    animationController.dispose();
     super.dispose();
   }
 

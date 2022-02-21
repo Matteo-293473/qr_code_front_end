@@ -39,10 +39,9 @@ class _HomeScreenState extends State<HomeScreen> {
   initState() {
     super.initState();
     const dueSec = Duration(seconds:5);
-    if(localHostString == ""){
-      final localHost = Navigator.push(context,MaterialPageRoute(builder: (context) => SetUp()));
-      localHostString = localHost as String;
-    }
+    //final localHost = Navigator.push(context,MaterialPageRoute(builder: (context) => SetUp()));
+    //localHostString = localHost as String;
+
     Timer.periodic(dueSec, (Timer t) => checkConnessione());
   }
 
