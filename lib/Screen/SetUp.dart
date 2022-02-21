@@ -6,22 +6,42 @@ import 'package:flutter/material.dart';
 import 'package:qr_code2/Constant/Constant.dart';
 import 'Loading.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:qr_code2/Screen/HomeScreen.dart';
+import 'package:qr_code2/Storage.dart';
 
 class SetUp extends StatefulWidget {
+  final Storage storage;
 
+  SetUp({Key? key,required this.storage}): super(key: key);
 
   @override
   State<SetUp> createState() => _SetUpState();
 }
 
 class _SetUpState extends State<SetUp> {
+
   var _ipServer = TextEditingController();
   var _portServer = TextEditingController();
   bool loading = false;
   bool connessione = false;
   late String rispostaServer;
+  late String prova;
+  late List<String> list;
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.storage.readData().then((String value) {
+      if(value != ""){
+        setState(() {
+          list = value.split(' ');
+          _ipServer.text = list[0];
+          _portServer.text = list[1];
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,15 +156,19 @@ class _SetUpState extends State<SetUp> {
         throw SocketException;
       if (result.statusCode == 200 || result.statusCode == 404 ) {
         setState(() {
+          list[0] = _ipServer.text;
+          list[1] = _portServer.text;
           connessione =  true;
           loading = false;
           // andiamo alla schermata successiva
           Future.delayed(Duration.zero, () {
             Navigator.of(context).pushReplacementNamed(HOME_SCREEN);
           });
+          widget.storage.writeData(list[0] + ' ' + list[1]);
 
-          //Navigator.push(context,MaterialPageRoute(builder: (context) => HomeScreen()));
+
         });
+
       }
     } on SocketException catch (e) {
       print(e);

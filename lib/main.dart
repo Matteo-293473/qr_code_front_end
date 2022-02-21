@@ -4,6 +4,7 @@ import 'package:qr_code2/Constant/Constant.dart';
 import 'package:qr_code2/screen/HomeScreen.dart';
 import 'package:qr_code2/Screen/SetUp.dart';
 import 'package:qr_code2/screen/SplashScreen.dart';
+import 'package:qr_code2/Storage.dart';
 
 void main() => runApp(
       MaterialApp(
@@ -14,7 +15,9 @@ void main() => runApp(
         title: 'QR Scanner',
         routes: <String, WidgetBuilder>{
           HOME_SCREEN: (BuildContext context) => HomeScreen(),
-          SET_UP: (BuildContext context) => SetUp(),
+          SET_UP: (BuildContext context) => SetUp(
+            storage: Storage(),
+          ),
         },
         home: SplashScreen(),
       ),
