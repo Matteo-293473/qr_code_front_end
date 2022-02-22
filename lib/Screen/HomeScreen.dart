@@ -47,6 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    final args = ModalRoute.of(context)!.settings.arguments;
+    localHostString = args.toString();
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.lightBlue,
@@ -67,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
                 child: Text(
-                  'Connessione',
+                  'Connection',
                   style: TextStyle(
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold),
@@ -264,8 +268,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String _localhost() {
     if (Platform.isAndroid)
-      return 'http://192.168.31.107:80';
-      //return 'http://10.0.2.2:3000';
+      return localHostString;
+    //return 'http://10.0.2.2:3000';
     else // for iOS simulator
       return 'http://localhost:3000';
   }

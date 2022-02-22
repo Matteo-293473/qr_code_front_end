@@ -160,7 +160,7 @@ class _SetUpState extends State<SetUp> {
           loading = false;
           // andiamo alla schermata successiva
           Future.delayed(Duration.zero, () {
-            Navigator.of(context).pushReplacementNamed(HOME_SCREEN);
+            Navigator.of(context).pushReplacementNamed(HOME_SCREEN, arguments: localHost);
           });
           widget.storage.writeData(list[0] + ' ' + list[1]);
 
