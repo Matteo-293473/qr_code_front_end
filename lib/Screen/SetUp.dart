@@ -26,7 +26,6 @@ class _SetUpState extends State<SetUp> {
   bool connessione = false;
   late String rispostaServer;
   late String prova;
-  late List<String> list;
 
   @override
   void initState() {
@@ -35,7 +34,7 @@ class _SetUpState extends State<SetUp> {
     widget.storage.readData().then((String value) {
       if(value != ""){
         setState(() {
-          list = value.split(' ');
+          List<String> list = value.split(' ');
           _ipServer.text = list[0];
           _portServer.text = list[1];
         });
@@ -156,8 +155,7 @@ class _SetUpState extends State<SetUp> {
         throw SocketException;
       if (result.statusCode == 200 || result.statusCode == 404 ) {
         setState(() {
-          list[0] = _ipServer.text;
-          list[1] = _portServer.text;
+          List<String> list = [_ipServer.text, _portServer.text];
           connessione =  true;
           loading = false;
           // andiamo alla schermata successiva
