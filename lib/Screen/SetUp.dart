@@ -20,6 +20,7 @@ class SetUp extends StatefulWidget {
 
 class _SetUpState extends State<SetUp> {
 
+  final formKey = GlobalKey<FormState>();
   var _ipServer = TextEditingController();
   var _portServer = TextEditingController();
   bool loading = false;
@@ -44,6 +45,7 @@ class _SetUpState extends State<SetUp> {
 
   @override
   Widget build(BuildContext context) {
+
     return loading
         ? Loading()
         : Scaffold( // se loading è false allora ritorna lo scaffold
@@ -52,95 +54,100 @@ class _SetUpState extends State<SetUp> {
           title: const Text('Set up connection'),
         ),
         body: Container(
-            child: ListView(
-                children: <Widget>[
-                  Center(
-                    child: Container(
-                        padding: EdgeInsets.all(20.0),
-                        margin: EdgeInsets.all(10.0),
-                        child: TextField(
-                          maxLength: 15,
-                          style: TextStyle(color: Colors.white, fontSize: 30),
-                          controller: _ipServer,
-                          decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.lightBlueAccent),
-                              ),
-                              hintText: 'Server IP',
-                              hintStyle: TextStyle(
-                                  color: Colors.lightBlueAccent),
-                              suffixIcon: IconButton(
-                                onPressed: _ipServer.clear,
-                                icon: Icon(Icons.clear),
-                              )
-                          ),
-                          keyboardType: TextInputType.number,
-                        )
-                    ),
-                  ),
-                  Center(
-
-                      child: Container(
-                        padding: EdgeInsets.all(20.0),
-                        margin: EdgeInsets.all(10.0),
-                        child: TextField(
-                          maxLength: 5,
-                          style: TextStyle(color: Colors.white, fontSize: 30),
-                          controller: _portServer,
-                          decoration: InputDecoration(
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white),
-                              ),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Colors.lightBlueAccent),
-                              ),
-                              hintText: 'Server port',
-                              hintStyle: TextStyle(
-                                  color: Colors.lightBlueAccent),
-                              suffixIcon: IconButton(
-                                onPressed: _portServer.clear,
-                                icon: Icon(Icons.clear),
-                              )
-                          ),
-                          keyboardType: TextInputType.number,
-                        ),
+            padding: EdgeInsets.all(20.0),
+            margin: EdgeInsets.all(10.0),
+          child: Form(
+            key: formKey,
+            child:Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:[
+                //SizedBox(height: height*0.05),
+                TextFormField(
+                  maxLength: 15,
+                  style: TextStyle(color: Colors.white, fontSize: 30),
+                  controller: _ipServer,
+                  decoration: InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.lightBlueAccent),
+                      ),
+                      hintText: 'Server IP',
+                      hintStyle: TextStyle(
+                          color: Colors.lightBlueAccent),
+                      suffixIcon: IconButton(
+                        onPressed: _ipServer.clear,
+                        icon: Icon(Icons.clear),
                       )
                   ),
-                  InkWell(
-                    // Qui avviene la chiamata al metodo
-                    onTap: () => TestConnessione(),
-                    child: new Center(
-                      child: Container(
-                        margin: EdgeInsets.only(top: 30.0),
-                        width: 300.0,
-                        height: 150.0,
-                        decoration: new BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          color: Colors.white,
-                          borderRadius: new BorderRadius.all(
-                            new Radius.circular(24.0),
-                          ),
+                  keyboardType: TextInputType.number,
+                  validator: (value){
+                    if(value!.isEmpty){
+                      return "enter a valid ip number";
+                    }
+                  },
+                ),
+                TextFormField(
+                    maxLength: 5,
+                    style: TextStyle(color: Colors.white, fontSize: 30),
+                    controller: _portServer,
+                    decoration: InputDecoration(
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
                         ),
-                        child: Center(
-                          child: Text(
-                            'Connect',
-                            style: TextStyle(
-                              color: Colors.lightBlue,
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.lightBlueAccent),
+                        ),
+                        hintText: 'Server port',
+                        hintStyle: TextStyle(
+                            color: Colors.lightBlueAccent),
+                        suffixIcon: IconButton(
+                          onPressed: _portServer.clear,
+                          icon: Icon(Icons.clear),
+                        )
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value){
+                      if(value!.isEmpty){
+                          return "enter a valid port number";
+                        }
+                      }
+                ),
+                InkWell(
+                  // Qui avviene la chiamata al metodo
+                  onTap: () => formKey.currentState!.validate()? TestConnessione() : null,
+                  child: new Center(
+                    child: Container(
+                      margin: EdgeInsets.only(top: 30.0),
+                      width: 300.0,
+                      height: 150.0,
+                      decoration: new BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        color: Colors.white,
+                        borderRadius: new BorderRadius.all(
+                          new Radius.circular(24.0),
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Connect',
+                          style: TextStyle(
+                            color: Colors.lightBlue,
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
                   ),
-                ]
+                ),
+              ]
             )
+          )
+
         )
     );
   }
