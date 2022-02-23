@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String serverResponse = "";
   String qrInfo = "";
   String deviceId = "";
-  bool connessione = false;
+  bool connessione = true;
   String messaggio = "";
 
 

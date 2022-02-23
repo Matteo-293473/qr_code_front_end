@@ -87,7 +87,7 @@ class _SetUpState extends State<SetUp> {
                     if(value!.isEmpty ||
                         !RegExp(r'^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\.(?!$)|$)){4}$')
                             .hasMatch(value)){
-                      return "enter a valid ip number";
+                      return "Enter a valid IP number";
                     }
                   },
                 ),
@@ -116,7 +116,7 @@ class _SetUpState extends State<SetUp> {
                       if(value!.isEmpty ||
                           !RegExp(r'^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$')
                               .hasMatch(value)){
-                          return "enter a valid port number";
+                          return "Enter a valid port number";
                         }
                       }
                 ),
@@ -137,7 +137,7 @@ class _SetUpState extends State<SetUp> {
                       ),
                       child: Center(
                         child: Text(
-                          'Connect',
+                          'CONNECT',
                           style: TextStyle(
                             color: Colors.lightBlue,
                             fontSize: 40,
@@ -161,7 +161,7 @@ class _SetUpState extends State<SetUp> {
     try {
       // proviamo a vedere se c'è connessione nel server cercato
       var localHost = 'http://' + _ipServer.text + ':' + _portServer.text;
-      final result = await http.head(Uri.parse(localHost));
+      final result = await http.head(Uri.parse(localHost)).timeout(Duration(seconds: 5));
       if(_ipServer.text == '')
         throw SocketException;
       if (result.statusCode == 200 || result.statusCode == 404 ) {
@@ -184,8 +184,14 @@ class _SetUpState extends State<SetUp> {
       setState(() {
         connessione = false;
         loading = false;
-        // far vedere la stessa schermata
-        print("far vedere la stessa schermata");
+
+        // rimaniamo su questo screen
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('No server found, check IP and Port'),
+              backgroundColor: Colors.red ),
+        );
+
         rispostaServer = "Connessione al server non riuscita ❌";
       });
     } on TimeoutException {
