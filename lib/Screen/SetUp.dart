@@ -161,9 +161,8 @@ class _SetUpState extends State<SetUp> {
     try {
       // proviamo a vedere se c'è connessione nel server cercato
       var localHost = 'http://' + _ipServer.text + ':' + _portServer.text;
+      // il limite di attesa al server è impostato manualmente
       final result = await http.head(Uri.parse(localHost)).timeout(Duration(seconds: 5));
-      if(_ipServer.text == '')
-        throw SocketException;
       if (result.statusCode == 200 || result.statusCode == 404 ) {
         setState(() {
           List<String> list = [_ipServer.text, _portServer.text];
@@ -174,12 +173,10 @@ class _SetUpState extends State<SetUp> {
             Navigator.of(context).pushReplacementNamed(HOME_SCREEN, arguments: localHost);
           });
           widget.storage.writeData(list[0] + ' ' + list[1]);
-
-
         });
 
       }
-    } on SocketException catch (e) {
+    } catch (e) {
       print(e);
       setState(() {
         connessione = false;
@@ -189,15 +186,11 @@ class _SetUpState extends State<SetUp> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('No server found, check IP and Port'),
-              backgroundColor: Colors.red ),
+              backgroundColor: Colors.red),
         );
 
         rispostaServer = "Connessione al server non riuscita ❌";
       });
-    } on TimeoutException {
-      throw HttpException("TIMEOUT");
-    }  catch (error) {
-      print(error);
     }
   }
 

@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child:
               CircleAvatar(backgroundColor : connessione == true ? Colors.green : Colors.red)),
             SizedBox(
-              width: 280,
+              width: 250,
               child:
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
