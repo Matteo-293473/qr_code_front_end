@@ -9,6 +9,8 @@ class SplashScreen extends StatefulWidget {
 
 }
 
+// la divisione della dichiarazione in due classi permette di avere un widget
+// immutabile con uno stato mutabile
 class SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   var _visible = true;
@@ -21,15 +23,11 @@ class SplashScreenState extends State<SplashScreen>
     return new Timer(_duration, navigationPage);
   }
 
+  // navigazione alla pagina di SET_UP
   void navigationPage() {
     Navigator.of(context).pushReplacementNamed(SET_UP);
   }
 
-  @override
-  dispose() {
-    animationController.dispose();
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -42,7 +40,6 @@ class SplashScreenState extends State<SplashScreen>
         new CurvedAnimation(parent: animationController, curve: Curves.easeOut);
 
     animation.addListener(() => this.setState(() {}));
-    //animationController.dispose();
     animationController.forward();
 
     setState(() {

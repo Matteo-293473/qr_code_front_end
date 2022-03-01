@@ -1,17 +1,31 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code2/Constant/Constant.dart';
 import 'Loading.dart';
 import 'package:http/http.dart' as http;
-import 'package:qr_code2/Screen/HomeScreen.dart';
 import 'package:qr_code2/Storage.dart';
+
+// Questa schermata è dedicata all'impostazione della connessione.
+// Si presenta all'utente un'interfaccia composta da due textbox le quali
+// dovranno essere popolate dall'indirizzo e porta del server in cui gira node.
+// Per facilitare l'uso dell'applicazione, una volta che si stabilisce
+// la connessione, viene salvato il valore di IP e porta all'interno di un file,
+// così che, ad un nuovo avvio, non ci sarà più bisogno di inserire i dati
+// nei rispettivi campi.
+// Le textbox inoltre sono dotate di controlli degli input attraverso il RegExp.
+// Una volta inseriti i valori corretti si continua cliccando un tasto "CONNECT",
+// che, mostrerà l'animazione di caricamento e verificherà che ci sia il server
+// presso quella socket IP:Porta.
+// Se tutto va a buon fine si passa alla schermata HomeScreen.dart.
 
 class SetUp extends StatefulWidget {
   final Storage storage;
 
+  // è richiesto un parametro storage (all'interno di un file)
+  // che contiene i valori IP+PORTA che hanno funzionato nelle
+  // sessioni precedenti.
   SetUp({Key? key,required this.storage}): super(key: key);
 
   @override
@@ -21,10 +35,15 @@ class SetUp extends StatefulWidget {
 class _SetUpState extends State<SetUp> {
 
   final formKey = GlobalKey<FormState>();
+
+  // variabili che prendono i valori dei campi
   var _ipServer = TextEditingController();
   var _portServer = TextEditingController();
+
+  // inizialmente non c'è caricamento e connessione
   bool loading = false;
   bool connessione = false;
+
   late String rispostaServer;
   late String prova;
 
@@ -32,8 +51,13 @@ class _SetUpState extends State<SetUp> {
   void initState() {
     super.initState();
 
+    // Cerchiamo se esiste il file contenente i valori della socket.
+    // Se non esiste è perché probabilmente stiamo avviando l'applicazione
+    // per la prima volta
     widget.storage.readData().then((String value) {
       if(value != ""){
+        // Il file di testo non è vuoto, allora ricarichiamo il widget con i
+        // valori trovati
         setState(() {
           List<String> list = value.split(' ');
           _ipServer.text = list[0];
@@ -46,6 +70,9 @@ class _SetUpState extends State<SetUp> {
   @override
   Widget build(BuildContext context) {
 
+    // quando settiamo lo stato con setState{}, viene ricaricato il widget
+    // e viene valutato se loading è True o False. Nel qual caso fosse True,
+    // viene creata la Loading(), classe che si trova in Loading.dart
     return loading
         ? Loading()
         : Scaffold( // se loading è false allora ritorna lo scaffold
@@ -59,9 +86,12 @@ class _SetUpState extends State<SetUp> {
           child: Form(
             key: formKey,
             child:Column(
+              // dichiariamo dove il child deve trovarsi
               crossAxisAlignment: CrossAxisAlignment.start,
               children:[
-                //SizedBox(height: height*0.05),
+                // usiamo TextFormField invece di TextField perché
+                // è un oggetto più avanzato che permette anche la convalida
+                // dell'input.
                 TextFormField(
                   maxLength: 15,
                   style: TextStyle(color: Colors.white, fontSize: 30),
@@ -84,6 +114,7 @@ class _SetUpState extends State<SetUp> {
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value){
+                    // se i valori inseriti sono vuoti o non rispettano l'espressione RegExp
                     if(value!.isEmpty ||
                         !RegExp(r'^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\.(?!$)|$)){4}$')
                             .hasMatch(value)){
@@ -113,6 +144,7 @@ class _SetUpState extends State<SetUp> {
                     ),
                     keyboardType: TextInputType.number,
                     validator: (value){
+                      // se i valori inseriti sono vuoti o non rispettano l'espressione RegExp
                       if(value!.isEmpty ||
                           !RegExp(r'^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$')
                               .hasMatch(value)){
@@ -122,6 +154,9 @@ class _SetUpState extends State<SetUp> {
                 ),
                 InkWell(
                   // Qui avviene la chiamata al metodo
+
+                  // Se in questo stato del widget i valori inseriti nelle textbox sono validi
+                  // allora viene eseguito TestConnessione()
                   onTap: () => formKey.currentState!.validate()? TestConnessione() : null,
                   child: new Center(
                     child: Container(
@@ -157,14 +192,18 @@ class _SetUpState extends State<SetUp> {
   }
 
 
+
+  // si usa Future<void> invece di void perché così si può usare anche il costrutto
+  // await davanti alla chiamata di funzione.
   Future<void> checkConnessione() async {
     try {
-      // proviamo a vedere se c'è connessione nel server cercato
+      // proviamo a vedere se c'è un server in ascolto nella destinazione inserita
       var localHost = 'http://' + _ipServer.text + ':' + _portServer.text;
-      // il limite di attesa al server è impostato manualmente
+      // il limite di attesa al server è impostato manualmente => 5 secondi
       final result = await http.head(Uri.parse(localHost)).timeout(Duration(seconds: 5));
       if (result.statusCode == 200 || result.statusCode == 404 ) {
         setState(() {
+          // inserisco i valori che hanno funzionato in una lista
           List<String> list = [_ipServer.text, _portServer.text];
           connessione =  true;
           loading = false;
@@ -172,17 +211,19 @@ class _SetUpState extends State<SetUp> {
           Future.delayed(Duration.zero, () {
             Navigator.of(context).pushReplacementNamed(HOME_SCREEN, arguments: localHost);
           });
+          // scrivo i valori della lista su file (salvataggio)
           widget.storage.writeData(list[0] + ' ' + list[1]);
         });
 
       }
     } catch (e) {
       print(e);
+      // se siamo qui significa che la connessione non si è stabilita
       setState(() {
         connessione = false;
         loading = false;
 
-        // rimaniamo su questo screen
+        // rimaniamo su questa schermata
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('No server found, check IP and Port'),
@@ -197,6 +238,8 @@ class _SetUpState extends State<SetUp> {
 
   void TestConnessione() async {
     setState(() {
+      // viene aggiornato lo stato con loading = true quindi
+      // verrà richiamata la schermata di caricamento
       loading = true;
       checkConnessione();
     });

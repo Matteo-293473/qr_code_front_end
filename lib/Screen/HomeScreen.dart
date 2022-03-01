@@ -30,24 +30,21 @@ class _HomeScreenState extends State<HomeScreen> {
   String messaggio = "";
 
 
-
-
-
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   initState() {
     super.initState();
-    const dueSec = Duration(seconds:5);
-    //final localHost = Navigator.push(context,MaterialPageRoute(builder: (context) => SetUp()));
-    //localHostString = localHost as String;
 
-    Timer.periodic(dueSec, (Timer t) => checkConnessione());
+    // funzione per il controllo della connessione che viene eseguita
+    // ogni 5 secondi
+    Timer.periodic(Duration(seconds:5), (Timer t) => checkConnessione());
   }
 
   @override
   Widget build(BuildContext context) {
 
+    // recuperiamo la stringa localhost dalla schermata precedente SET_UP
     final args = ModalRoute.of(context)!.settings.arguments;
     localHostString = args.toString();
 
@@ -64,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
           SizedBox(
               width: 60,
               child:
+              // led di stato della connessione
               CircleAvatar(backgroundColor : connessione == true ? Colors.green : Colors.red)),
             SizedBox(
               width: 250,
@@ -133,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             InkWell(
-              // Qui avviene la chiamata al metodo _openQRScanner()
+              // Qui avviene la chiamata al metodo per leggere il qr
               onTap: () => LetturaQr(),
               child: new Center(
                 child: Container(
@@ -200,12 +198,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   void LetturaQr() async{
+      // queste istruzioni devono avvenire in ordine e quindi
+      // usiamo il costrutto await
+
+      // si verifica prima la connessione
       if(await connessione)
       {
-        // queste istruzioni devono avvenire in ordine e quindi
-        // usiamo il costrutto await
+
+        // si apre lo scanner
         await _openQRScanner();
+        // prendiamo il codice del device
         String deviceId = await _getId();
+        // inviamo tutti i dati al server attraverso la POST
         await PostData(deviceId);
       }else {
         setState((){
@@ -225,22 +229,25 @@ class _HomeScreenState extends State<HomeScreen> {
         });
     print(risposta.body);
     setState(() {
+      // messaggio dal server
       messaggio = risposta.body;
     });
 
   }
 
 
-
-
+  // funzione che si occupa di scannerizzare il QR usando la libreria apposita
   Future _openQRScanner() async {
     try {
       ScanResult qrScanResult = await BarcodeScanner.scan();
       String qrResult = qrScanResult.rawContent;
       setState(() {
-        qrInfo = qrResult;
+        qrInfo = qrResult; // i dati del QR sono inseriti in qrInfo
       });
+      // controllo dei possibili errori
     } on PlatformException catch (ex) {
+      // se siamo qui significa che non è stata concessa l'autorizzazione
+      // di accedere alla camera
       if (ex.code == BarcodeScanner.cameraAccessDenied) {
         setState(() {
           _content = "Camera was denied";
@@ -251,6 +258,8 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } on FormatException {
+      // se siamo qui significa che l'utente è tornato indietro e non ha
+      // scannerizzato nulla
       setState(() {
         _content = "You pressed the back button before scanning anything";
         print(_content);
