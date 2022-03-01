@@ -3,17 +3,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code2/Constant/Constant.dart';
 
+// Schermata dedicata alla semplice animazione del logo iniziale
+// viene mostrata e poi si passa subito alla schermata successiva, la SetUp.
+
+// La divisione della dichiarazione in due classi permette di avere un widget
+// immutabile con uno stato mutabile
 class SplashScreen extends StatefulWidget {
   @override
   SplashScreenState createState() => new SplashScreenState();
 
 }
 
-// la divisione della dichiarazione in due classi permette di avere un widget
-// immutabile con uno stato mutabile
 class SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  var _visible = true;
 
   late AnimationController animationController;
   late Animation<double> animation;
@@ -32,6 +34,7 @@ class SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    // usiamo la classe che permette le animazioni
     animationController = new AnimationController(
       vsync: this,
       duration: new Duration(seconds: 2),
@@ -42,9 +45,6 @@ class SplashScreenState extends State<SplashScreen>
     animation.addListener(() => this.setState(() {}));
     animationController.forward();
 
-    setState(() {
-      _visible = !_visible;
-    });
     startTime();
   }
 
@@ -65,6 +65,7 @@ class SplashScreenState extends State<SplashScreen>
             ],
           ),
           new Column(
+            // posizione del logo
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               new Image.asset(

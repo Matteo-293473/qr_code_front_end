@@ -6,9 +6,18 @@ import 'package:flutter/services.dart';
 import 'package:device_info/device_info.dart'; // pack per ricavare identificativo
 import 'package:http/http.dart' as http;
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:qr_code2/Screen/SetUp.dart';
 
 
+// schermata che è il cuore dell'applicazione.
+// Una volta connessi al server si accede a questa schermata che dà la
+// possibilità di scannerizzare il QR. L'utente cliccherà il tasto con la
+// dicitura "SCAN", così da aprire la fotocamera. Una volta effettutata la
+// scansione, verranno presi i dati quali il contenuto del qr e un id univoco del
+// dispositivo e verranno inviati al server sopracitato che restituirà una risposta.
+// Questa verrà mostrata nel box sopra il tasto "SCAN".
+// E' presente anche un led in alto a sinistra dedicato allo stato della
+// connessione, che viene verificata ogni 5 secondi attraverso una funzione
+// periodica.
 
 class HomeScreen extends StatefulWidget {
   @override
