@@ -11,7 +11,7 @@ import 'package:qr_code2/Storage.dart';
 // Si presenta all'utente un'interfaccia composta da due textbox le quali
 // dovranno essere popolate dall'indirizzo e porta del server in cui gira node.
 // Per facilitare l'uso dell'applicazione, una volta che si stabilisce
-// la connessione, viene salvato il valore di IP e porta all'interno di un file,
+// la connessione, vengono salvati valore di IP e porta all'interno di un file,
 // così che, ad un nuovo avvio, non ci sarà più bisogno di inserire i dati
 // nei rispettivi campi.
 // Le textbox inoltre sono dotate di controlli degli input attraverso il RegExp.

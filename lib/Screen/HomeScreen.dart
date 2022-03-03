@@ -65,32 +65,32 @@ class _HomeScreenState extends State<HomeScreen> {
         // backgroundColor: const Color(0xFFF6F8FA),
         title: new Center(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-          SizedBox(
-              width: 60,
-              child:
-              // led di stato della connessione
-              CircleAvatar(backgroundColor : connessione == true ? Colors.green : Colors.red)),
-            SizedBox(
-              width: 250,
-              child:
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
-                child: Text(
-                  'Connection',
-                  style: TextStyle(
+              SizedBox(
+                width: 60,
+                child:
+                // led di stato della connessione
+                CircleAvatar(backgroundColor : connessione == true ? Colors.green : Colors.red)),
+              SizedBox(
+                width: 250,
+                child:
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 20, 20),
+                  child: Text(
+                    'Connection',
+                    style: TextStyle(
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.left,
+                      textAlign: TextAlign.left,
+                  ),
                 ),
-              ),
-            )
+              )
             ],
           )
-
-          ),
+        ),
       ),
+
       body: Container(
         color: Colors.lightBlue,
         margin: EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
@@ -178,18 +178,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> checkConnessione() async {
     try {
 
-
-      final result = await http.head(Uri.parse(_localhost()));
-
+      final result = await http.head(Uri.parse(_localhost())).timeout(Duration(seconds: 5));
 
       print(result.statusCode);
 
-
-      if (result.statusCode == 200 ||result.statusCode == 404 ) {
+      if (result.statusCode == 200 || result.statusCode == 404) {
         setState(() {
           connessione =  true;
+          messaggio = "";
         });
-
 
       }
     } on SocketException catch (e) {
@@ -199,6 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
           messaggio = "Connessione al server non riuscita ❌";
         });
     } on TimeoutException {
+      setState(() {
+        connessione = false;
+        messaggio = "Connessione al server non riuscita ❌";
+      });
       throw HttpException("TIMEOUT");
     }  catch (error) {
       print(error);
@@ -289,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return localHostString;
     //return 'http://10.0.2.2:3000';
     else // for iOS simulator
-      return 'http://localhost:3000';
+      return localHostString;
   }
 
 
