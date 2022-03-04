@@ -37,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String deviceId = "";
   bool connessione = true;
   String messaggio = "";
+  String messaggioPrecedente = "";
+  String erroreServer = "❌ SERVER CONNECTION ERROR ❌";
 
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -182,23 +184,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
       print(result.statusCode);
 
-      if (result.statusCode == 200 || result.statusCode == 404) {
+      if (result.statusCode == 200  && connessione == false){
+        // se siamo qui significa che prima non c'era connessione ma adesso c'è
         setState(() {
           connessione =  true;
-          messaggio = "";
+          messaggio = messaggioPrecedente; // riprendiamo quello che c'era scritto prima
         });
 
       }
     } on SocketException catch (e) {
       print(e);
       setState(() {
-          connessione = false;
-          messaggio = "Connessione al server non riuscita ❌";
+          if(messaggio != erroreServer) {
+            messaggioPrecedente =
+                messaggio; // salviamo quello che c'era scritto prima
+          }
+            connessione = false;
+          messaggio = erroreServer;
         });
     } on TimeoutException {
       setState(() {
+        if(messaggio != erroreServer) {
+          messaggioPrecedente =
+              messaggio; // salviamo quello che c'era scritto prima
+        }
         connessione = false;
-        messaggio = "Connessione al server non riuscita ❌";
+        messaggio = erroreServer;
       });
       throw HttpException("TIMEOUT");
     }  catch (error) {
@@ -223,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
         await PostData(deviceId);
       }else {
         setState((){
-          messaggio = "Connessione al server non riuscita ❌";
+          messaggio = erroreServer;
         });
       }
 
