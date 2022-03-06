@@ -11,9 +11,9 @@ import 'package:barcode_scan/barcode_scan.dart';
 // schermata che è il cuore dell'applicazione.
 // Una volta connessi al server si accede a questa schermata che dà la
 // possibilità di scannerizzare il QR. L'utente cliccherà il tasto con la
-// dicitura "SCAN", così da aprire la fotocamera. Una volta effettutata la
+// dicitura "SCAN", così da aprire la fotocamera. Una volta effettuata la
 // scansione, verranno presi i dati quali il contenuto del qr e un id univoco del
-// dispositivo e verranno inviati al server sopracitato che restituirà una risposta.
+// dispositivo e verranno inviati al server sopraccitato che restituirà una risposta.
 // Questa verrà mostrata nel box sopra il tasto "SCAN".
 // E' presente anche un led in alto a sinistra dedicato allo stato della
 // connessione, che viene verificata ogni 5 secondi attraverso una funzione
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // funzione per il controllo della connessione che viene eseguita
     // ogni 5 secondi
-    Timer.periodic(Duration(seconds:5), (Timer t) => checkConnessione());
+    Timer.periodic(Duration(seconds:5), (Timer t) => checkConnection());
   }
 
   @override
@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
-  Future<void> checkConnessione() async {
+  Future<void> checkConnection() async {
     try {
 
       final result = await http.head(Uri.parse(_localhost())).timeout(Duration(seconds: 5));

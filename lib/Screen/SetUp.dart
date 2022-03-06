@@ -157,7 +157,7 @@ class _SetUpState extends State<SetUp> {
 
                   // Se in questo stato del widget i valori inseriti nelle textbox sono validi
                   // allora viene eseguito TestConnessione()
-                  onTap: () => formKey.currentState!.validate()? TestConnessione() : null,
+                  onTap: () => formKey.currentState!.validate()? TestConnection() : null,
                   child: new Center(
                     child: Container(
                       margin: EdgeInsets.only(top: 30.0),
@@ -195,7 +195,7 @@ class _SetUpState extends State<SetUp> {
 
   // si usa Future<void> invece di void perché così si può usare anche il costrutto
   // await davanti alla chiamata di funzione.
-  Future<void> checkConnessione() async {
+  Future<void> checkConnection() async {
     try {
       // proviamo a vedere se c'è un server in ascolto nella destinazione inserita
       var localHost = 'http://' + _ipServer.text + ':' + _portServer.text;
@@ -236,12 +236,12 @@ class _SetUpState extends State<SetUp> {
   }
 
 
-  void TestConnessione() async {
+  void TestConnection() async {
     setState(() {
       // viene aggiornato lo stato con loading = true quindi
       // verrà richiamata la schermata di caricamento
       loading = true;
-      checkConnessione();
+      checkConnection();
     });
 
   }
